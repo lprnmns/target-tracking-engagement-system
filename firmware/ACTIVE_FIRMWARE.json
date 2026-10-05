@@ -1,0 +1,18 @@
+{
+  "profile": "arduino_github_stable_20260730",
+  "status": "active",
+  "runtime_file": "firmware/pico2_arduino_stable/pico2_arduino_stable.ino",
+  "compile_fqbn": "rp2040:rp2040:rpipico2",
+  "protocol": "arduino_raw",
+  "baudrate": 460800,
+  "microsteps": "1/8",
+  "pan_max_steps_per_second": 4000,
+  "tilt_max_steps_per_second": 6000,
+  "watchdog_timeout_ms": 1500,
+  "field_reference": "https://github.com/lprnmns/istiklal-celikkubbe/commit/1f614d65ab573f1c7f56174c8712d4d5e2f9eca8",
+  "activation_reason": "Compiled Arduino step generation removed MicroPython timing stalls; live COM8 PING/STAT and two-axis jog ACK passed.",
+  "archived_candidates": [
+    "firmware/pico2/main.py",
+    ".runtime/firmware_tmc_stealth_2_1/rpipico2/motor_control_v2_optimized.ino.uf2"
+  ]
+}

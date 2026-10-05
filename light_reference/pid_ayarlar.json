@@ -1,0 +1,10 @@
+{
+    "kp_x": 11.0,
+    "ki_x": 0.0,
+    "kd_x": 1.1,
+    "kp_y": 8.0,
+    "ki_y": 0.0,
+    "kd_y": 4.0,
+    "invert_x": false,
+    "invert_y": false
+}

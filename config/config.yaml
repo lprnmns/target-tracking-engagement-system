@@ -1,0 +1,325 @@
+system:
+  name: "ISTIKLAL Command Center"
+  mode: "DISARMED"
+  default_fire_policy: "NO_FIRE"
+  dry_run: false
+  hardware_enabled: true
+
+hardware:
+  hardware_discovery_enabled: true
+  physical_command_enabled: true
+  allow_real_serial_readonly: false
+  allow_physical_motion: true
+  allow_physical_fire: false
+
+camera:
+  source: "camera-index:0"             # Harici USB kamera
+  width: 1920
+  height: 1080
+  fps: 30
+  mock: false
+  camera_mode: "live"
+  camera_source: "camera-index:0"
+  stream_enabled: true
+  stream_width: 1280
+  stream_height: 720
+  stream_fps: 30
+
+vision:
+  # Model emniyeti (gecikme düzeltme talimatı, madde 4):
+  # - Balon: canlıda kanıtlanmış hızlı TensorRT motoru (best.engine, ~4-10 ms).
+  #   kucuk_balon_v2.engine henüz saha doğrulaması görmedi; varsayılan değil.
+  # - Body: 240 MB'lık yolo11s.engine ASLA varsayılan olmayacak. Aşama 3'te
+  #   gerektiğinde hava_araci_24.09.engine politika kapısıyla (yalnız
+  #   BALLOON_AIRCRAFT/STAGE_3) çalışır; Aşama 2/BALLOON'da hiç koşmaz.
+  body_model: "models/uploaded/hava_araci_24.09_fp16.engine"
+  balloon_model: "models/uploaded/kucuk_balon_v2_fp16.engine"
+  imgsz: 640
+  body_conf: 0.40
+  balloon_conf: 0.38
+  iou: 0.50
+  tracker: "bytetrack.yaml"
+  stable_frames_required: 5
+  max_lost_frames: 8
+  mock: false
+  vision_mode: "ultralytics_yolo"
+  model_loading_required: true
+  body_model_path: "models/uploaded/hava_araci_24.09_fp16.engine"
+  balloon_model_path: "models/uploaded/kucuk_balon_v2_fp16.engine"
+  body_conf_threshold: 0.40
+  balloon_conf_threshold: 0.38
+  overlay_coordinate_format: "pixel"
+
+pico:
+  port: "COM7"              # USB Pico portu
+  baudrate: 460800                  # Eski sistemle aynı (maks performans)
+  heartbeat_timeout_ms: 2000
+  protocol: "raw"                   # Active compiled Arduino CSV ACK path
+  mock: false
+
+serial:
+  # Active Pico 2 firmware is the compiled Arduino raw/CSV ACK path.
+  protocol_mode: "raw"
+  raw_protocol_variant: "light"
+  transport_mode: "real_write"
+  port: "COM7"
+  baudrate: 460800
+  ack_timeout_ms: 500
+  heartbeat_timeout_ms: 2000
+  real_serial_enabled: true
+  real_serial_readonly: false
+  auto_connect: true
+  serial_tx_enabled: true
+
+pins:
+  profile_name: "pico2_production"
+  note: "Firmware pin assignments matching pico2/main.py"
+  assignments:
+    pan_step: GP1
+    pan_dir: GP0
+    tilt_step: GP9
+    tilt_dir: GP8
+    pan_driver_enable: GP6
+    tilt_driver_enable: GP14
+    trigger_servo_pwm: GP15
+    estop_in: GP18
+    pan_limit_left: GP26
+    pan_limit_right: ""
+    tilt_limit_up: GP22
+    tilt_limit_down: ""
+
+motor:
+  # Active rollback firmware uses the field-tested 1/8 microstep path.
+  pan_steps_per_degree: 133.333
+  tilt_steps_per_degree: 88.889
+  max_speed: 12000
+  acceleration: 7000
+  backlash_compensation_steps: 12
+  deadband_px: 3
+  # HIL 2026-07-30 isolated-axis acceptance: raw Y positive moved the
+  # physical turret right. Semantic positive pan is camera-right.
+  pan_direction_multiplier: 1
+  # HIL 2026-07-30: Pico raw X drives physical tilt and raw Y drives pan.
+  # Light controller outputs semantic speed_y < 0 for target below center.
+  # With multiplier -1, raw_speed_x = speed_y * (-1) > 0 (Pico positive X tilts down).
+  tilt_direction_multiplier: -1
+  axis_swap: true
+
+motion:
+  dry_run: false
+  real_motion_enabled: true
+  # DRY_RUN preview range. LIVE profiles replace this with the persisted
+  # switch-referenced physical envelope around PAN 135 / TILT 30.
+  soft_limits_enabled: true
+  pan_min_deg: -60.0
+  pan_max_deg: 60.0
+  tilt_min_deg: -28.0
+  tilt_max_deg: 28.0
+  pan_steps_per_degree: 133.333
+  tilt_steps_per_degree: 88.889
+  # MicroPython rollback host pose scale from the 2026-07-30 field run.
+  command_full_scale: 1000.0
+  pan_max_steps_per_second: 4000.0
+  tilt_max_steps_per_second: 6000.0
+  pan_max_speed_deg_s: 45.0
+  tilt_max_speed_deg_s: 45.0
+  pan_accel_deg_s2: 220.0
+  tilt_accel_deg_s2: 220.0
+  jog_step_deg: 1.0
+  deadband_px: 12
+  tracking_gain_x: 0.05
+  tracking_gain_y: 0.05
+  backlash_compensation_enabled: false
+  scan_enabled: false
+  # As-built sector exclusions are measured during SAFE-08/HIL and then kept
+  # here as named persistent profiles. Empty means no additional sector.
+  motion_forbidden_zones: []
+  scan_min_deg: -45.0
+  scan_max_deg: 45.0
+  scan_speed_deg_s: 10.0
+
+calibration:
+  camera_height_cm: 60.0
+  target_height_cm: 130.0
+  table_height_cm: 60.0
+  lens_profile: "unknown"
+  hfov_deg: 45.0
+  vfov_deg: null
+  resolution_width: 1920
+  resolution_height: 1080
+  fps: 30
+  homography_enabled: false
+  distortion_enabled: false
+
+color:
+  color_space: "HSV"
+  balloon_mask_enabled: true
+  saturation_min: 70
+  value_min: 50
+  min_body_pixels: 200
+  decision_threshold: 0.55
+  temporal_window: 5
+  required_consistent_frames: 3
+  lab_enabled: false
+  morphology_kernel: 3
+  enemy_hsv_ranges:
+    - {h_min: 0, h_max: 12, s_min: 70, v_min: 50}
+    - {h_min: 170, h_max: 180, s_min: 70, v_min: 50}
+  friend_hsv_ranges:
+    - {h_min: 95, h_max: 130, s_min: 60, v_min: 40}
+  balloon_hsv_ranges:
+    - {h_min: 0, h_max: 12, s_min: 70, v_min: 50}
+    - {h_min: 170, h_max: 180, s_min: 70, v_min: 50}
+
+safety:
+  require_armed: true
+  require_estop_released: true
+  require_enemy: true
+  require_balloon: true
+  require_valid_range: true
+  require_stable_track: true
+  no_fire_default: true
+  stable_frames_required: 5
+  require_operator_confirm: false
+  forbidden_zone_check_enabled: false
+  default_fire_policy: "NO_FIRE"
+
+decision:
+  stable_frames_required: 5
+  require_enemy: true
+  require_balloon: true
+  require_valid_range: true
+  require_operator_confirm: false
+  forbidden_zone_check_enabled: false
+  fire_forbidden_zones: []
+  default_fire_policy: "FIRE_ALLOWED"
+  range_rules:
+    f16:
+      min_m: 10.0
+      max_m: 15.0
+    helicopter:
+      min_m: 5.0
+      max_m: 15.0
+    ballistic_missile:
+      min_m: 5.0
+      max_m: 15.0
+    mini_micro_uav:
+      min_m: 0.0
+      max_m: 15.0
+
+models:
+  root_dir: "models"
+  allowed_extensions: [".pt", ".onnx", ".engine", ".yaml"]
+  max_upload_size_mb: 500
+  active_models_file: "models/active/active_models.json"
+  default_adapter: "ultralytics_yolo"
+
+dataset:
+  root_dir: "data"
+  default_train_val_split: 0.8
+  require_verified_annotations_for_export: true
+  default_export_mode: "combined_body_balloon"
+  snapshot_format: "jpg"
+  save_mock_frames: false
+  max_preview_events: 500
+
+reports:
+  root_dir: "exports/reports"
+  include_screenshots: true
+  include_self_test_latest: true
+  include_dataset_summary: true
+  include_model_registry: true
+  include_safety_summary: true
+
+runtime_mode:
+  mode: "production"
+  frontend_static_enabled: true
+  auto_open_browser: true
+  launcher_managed: false
+  offline_mode: false
+  dependency_check_enabled: true
+
+device_manager:
+  scan_interval_ms: 2000
+  enable_hotplug_polling: true
+
+camera_runtime:
+  default_source_type: "usb"         # CameraRuntimeService başlangıç profili (pipeline kamerayı ayrıca açar)
+  default_device_path: "camera-index:0"
+  default_width: 1920
+  default_height: 1080
+  default_fps: 30
+  default_fourcc: "MJPG"
+  default_lens_profile: "unknown"
+  # YOLO receives a 640-pixel inference shape on the 4 GB field GPU.  The
+  # camera capture/stream remains native (1920x1080 when negotiated).
+  inference_width: 640
+  inference_height: 640
+
+vision_runtime:
+  default_adapter: "ultralytics_yolo"
+  default_imgsz: 640
+  default_conf: 0.01
+  default_iou: 0.45
+  default_max_det: 40
+  default_device: "auto"
+  allow_cuda: true
+
+logging:
+  path: "logs"
+  jsonl: true
+  save_overlay_video: false
+
+# Kapalı çevrim hedef takip sistemi
+tracking:
+  enabled: true
+  pid_kp_x: 11.0
+  pid_ki_x: 0.0
+  pid_kd_x: 1.1
+  pid_kp_y: 8.0
+  pid_ki_y: 0.0
+  pid_kd_y: 2.0
+  smoothing_alpha: 0.25
+  command_rate_hz: 66
+  max_speed: 8000
+  max_speed_x: 8000
+  max_speed_y: 8000
+  min_move_speed: 120.0
+  output_min: -8000.0
+  output_max: 8000.0
+  integral_max: 3000.0
+  deadband_lock_ratio: 0.0
+  deadband_slow_ratio: 0.0
+  deadband_medium_ratio: 0.0
+  bbox_lock_enabled: false
+  momentum_lock_enabled: false
+  momentum_velocity_threshold_px_s: 12.0
+  max_lost_frames: 10
+  aim_offset_x_px: 0.0
+  # Sahada tam merkezden vuran kalibrasyon (28 Eylül): Dikey -26.0 px
+  aim_offset_y_px: -26.0
+  invert_x: false
+  invert_y: false
+  lead_enabled: true
+  lead_latency_multiplier: 1.0
+  lead_max_horizon_ms: 120.0
+
+digital_twin:
+  enabled: true
+  replay_enabled: true
+  command_authority: false
+  fixture_path: "fixtures/digital_twin/balloon_tracking_run_001.json"
+  asset_registry_path: "reports/digital_twin_asset_registry.json"
+  state_refresh_hz: 10.0
+  # 2026-07-30 HIL: 160 mm balon, 0.85 m mesafe ve 640x480 bbox ile kalibre.
+  camera_fov_horizontal_deg: 62.0
+  camera_fov_vertical_deg: 40.0
+  camera_to_launcher_offset_z_mm: 30.0
+  camera_to_launcher_offset_y_mm: 0.0
+  balloon_diameter_mm: 140.0
+
+person_safety:
+  enabled: true
+  confidence_threshold: 0.55
+  hold_ms: 800
+  clear_after_ms: 1200

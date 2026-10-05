@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / build
+node_modules/
+dist/
+frontend/dist/
+
+# Runtime data (never commit)
+logs/
+data/
+exports/
+reports/
+config/runtime/
+models/**/*.pt
+models/**/*.onnx
+*.engine
+
+# Local patch backups
+*.yama_oncesi
+*_oncesi
+*.test
+
+# Media / archives
+*.zip
+*.docx
+*.mp4
+*.avi
+
+# Firmware build output
+firmware/build/
+
+# OS
+.DS_Store
+Thumbs.db
+yarisma_bayraklari.ini
