@@ -2,6 +2,8 @@
 
 Vision-guided, two-axis pan/tilt turret that detects, tracks and engages balloon targets — including balloons tethered under moving aircraft models, with friend/foe discrimination. Built by a student team for an air-defense competition (2026).
 
+**Award:** Finalist — **Best System Design Award** (TEKNOFEST 2026 ÇELİKKUBBE, low-altitude air defense category).
+
 **Field result (final run):** Stage 2 — 11/12 balloons hit · Stage 3 (moving aircraft + IFF) — 7/8 hit.
 
 ![Operator console: live YOLO detection with friend/foe labels (left) and the 3D tactical digital twin with the turret's field-of-view cone (right)](docs/images/cockpit_digital_twin.jpg)
