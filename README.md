@@ -4,6 +4,10 @@ Vision-guided, two-axis pan/tilt turret that detects, tracks and engages balloon
 
 **Field result (final run):** Stage 2 — 11/12 balloons hit · Stage 3 (moving aircraft + IFF) — 7/8 hit.
 
+![Operator console: live YOLO detection with friend/foe labels (left) and the 3D tactical digital twin with the turret's field-of-view cone (right)](docs/images/cockpit_digital_twin.jpg)
+
+*Operator console — left: live camera with aircraft detections labelled friend (green) / foe (red); right: real-time 3D digital twin of the turret, targets and camera FOV, driven by the same pose and detection stream.*
+
 > This is a source snapshot of the competition-day software. Trained models, logs, datasets and recorded media are intentionally **not** included.
 
 ---
